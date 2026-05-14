@@ -17,6 +17,7 @@ function safeAtob(input) {
     return output;
 }
 
+
 async function getStreams(tmdbId, mediaType, season, episode) {
     try {
         let cleanId = String(tmdbId).trim();
@@ -36,7 +37,7 @@ async function getStreams(tmdbId, mediaType, season, episode) {
             .split(":")[0].split("/")[0];
 
         const type = ["movie", "film"].includes(String(mediaType).toLowerCase()) ? "movie" : "tv";
-        
+
         if (!imdbId) {
             imdbId = cleanId.startsWith("tt") ? cleanId : null;
             if (!imdbId) {
@@ -95,7 +96,7 @@ async function getStreams(tmdbId, mediaType, season, episode) {
                 console.log(`[Embed69] >> Encontrado: ${sName}`);
                 if (typeof __yield_result === "function") __yield_result(JSON.stringify(item));
                 results.push(item);
-                
+
                 // Pequeña pausa para no saturar el runtime
                 if (typeof __native_sleep === "function") await __native_sleep(50);
             } catch (e) {
