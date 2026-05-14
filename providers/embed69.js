@@ -17,7 +17,6 @@ function safeAtob(input) {
     return output;
 }
 
-
 async function getStreams(tmdbId, mediaType, season, episode) {
     try {
         let cleanId = String(tmdbId).trim();
