@@ -19,6 +19,23 @@
             "contentLanguage": [
                 "es"
             ]
+        },
+        {
+            "id": "cuevana_unbuendato",
+            "name": "Cuevana Unbuendato",
+            "description": "Nitro 4X: API Directa & Sniffing Universal ⚡",
+            "version": "1.0.0",
+            "author": "AdrianJael",
+            "supportedTypes": [
+                "movie",
+                "tv"
+            ],
+            "filename": "providers/cuevana_unbuendato.js",
+            "enabled": true,
+            "logo": "https://cuevana.unbuendato.com/favicon.ico",
+            "contentLanguage": [
+                "es"
+            ]
         }
     ]
 }
