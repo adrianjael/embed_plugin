@@ -46,6 +46,18 @@ async function getStreams(tmdbId, mediaType, season, episode) {
                 try {
                     if (!embedUrl || !embedUrl.startsWith("http")) continue;
 
+                    // Filtrar Netu/Waaw ya que no se pueden extraer con fiabilidad
+                    const lowServerName = sName.toLowerCase();
+                    const lowUrl = embedUrl.toLowerCase();
+                    if (
+                        lowServerName.includes("netu") || lowServerName.includes("waaw") || lowServerName.includes("hani") ||
+                        lowUrl.includes("waaw.to") || lowUrl.includes("netu.tv") || lowUrl.includes("netu.to") || 
+                        lowUrl.includes("hani.to") || lowUrl.includes("waaw.tv")
+                    ) {
+                        console.log(`[CuevanaDato] Ignorando servidor Netu/Waaw detectado: ${sName} (${embedUrl})`);
+                        continue;
+                    }
+
                     const item = {
                         name: sName.toUpperCase() + " (Sniffer)",
                         language: "Latino",

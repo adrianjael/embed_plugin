@@ -1,6 +1,6 @@
 {
     "name": "Embed - AdrianJael",
-    "version": "1.0.6",
+    "version": "1.0.7",
     "description": "Contenido exclusivo en Español Latino para NuvioMobile con acceso directo IMDB",
     "scrapers": [
         {
@@ -25,7 +25,7 @@
             "id": "cuevana_unbuendato",
             "name": "Cuevana Unbuendato",
             "description": "Nitro 4X: API Directa & Sniffing Universal ⚡",
-            "version": "1.0.4",
+            "version": "1.0.5",
             "author": "AdrianJael",
             "supportedTypes": [
                 "movie",
@@ -43,7 +43,7 @@
             "id": "unlimplay",
             "name": "Unlimplay",
             "description": "Nitro 1.0: Enlaces Directos & Sniffing Auto ⚡",
-            "version": "1.0.0",
+            "version": "1.0.1",
             "author": "AdrianJael",
             "supportedTypes": [
                 "movie",
