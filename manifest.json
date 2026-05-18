@@ -1,6 +1,6 @@
 {
     "name": "Embed - AdrianJael",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Contenido exclusivo en Español Latino para NuvioMobile con acceso directo IMDB",
     "scrapers": [
         {
@@ -15,6 +15,7 @@
             ],
             "filename": "providers/embed69.js",
             "enabled": true,
+            "embed": true,
             "logo": "https://play-lh.googleusercontent.com/5oy8Mdjfj1sEzBWe5WxuQ_8MqFRC6Yu-PM2c4QkXEN_isAQvqrWeMwZV7z3__lDm8Q",
             "contentLanguage": [
                 "es"
@@ -32,6 +33,7 @@
             ],
             "filename": "providers/cuevana_unbuendato.js",
             "enabled": true,
+            "embed": false,
             "logo": "https://cuevana.unbuendato.com/favicon.ico",
             "contentLanguage": [
                 "es"
