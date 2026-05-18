@@ -33,7 +33,7 @@
             ],
             "filename": "providers/cuevana_unbuendato.js",
             "enabled": true,
-            "embed": false,
+            "embed": true,
             "logo": "https://cuevana.unbuendato.com/favicon.ico",
             "contentLanguage": [
                 "es"
