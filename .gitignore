@@ -1,0 +1,13 @@
+# Ignorar todo por defecto
+*
+
+# No ignorar archivos de configuración de Git
+!.gitignore
+!.gitattributes
+
+# No ignorar manifest.json
+!manifest.json
+
+# No ignorar la carpeta providers y sus contenidos
+!providers/
+!providers/**
