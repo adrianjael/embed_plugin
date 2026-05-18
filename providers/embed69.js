@@ -5,6 +5,16 @@
 
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
 
+// Obtener CryptoJS de manera segura tanto en QuickJS (global) como en Node (require)
+let CryptoJS = globalThis.CryptoJS;
+if (typeof CryptoJS === 'undefined' && typeof require === 'function') {
+    try {
+        CryptoJS = require('crypto-js');
+    } catch (e) {
+        console.log("[Embed69] CryptoJS no disponible localmente");
+    }
+}
+
 function safeAtob(input) {
     if (!input) return "";
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
@@ -59,18 +69,54 @@ async function getStreams(tmdbId, mediaType, season, episode) {
 
         const response = await fetch(targetUrl, { headers: { "User-Agent": UA } });
         const html = await response.text();
-        const match = html.match(/dataLink\s*=\s*([\[\{][\s\S]*?[\]\}]);/);
 
-        if (!match) return [];
+        // 1. Extraer los datos cifrados (dataLink)
+        const match = html.match(/dataLink\s*=\s*([\[\{][\s\S]*?[\]\}]);/);
+        if (!match) {
+            console.log(`[Embed69] No se encontró dataLink en la página. HTML preview: ${html.substring(0, 300)}`);
+            return [];
+        }
 
         let data = JSON.parse(match[1]);
         if (!Array.isArray(data)) {
             data = Object.keys(data).map(k => ({ video_language: k, sortedEmbeds: data[k] }));
         }
 
+        // 2. Resolver Proof of Work (PoW) dinámicamente si los parámetros están presentes
+        const challengeMatch = html.match(/const\s+POW_CHALLENGE\s*=\s*['"]([^'"]+)['"]/);
+        const difficultyMatch = html.match(/const\s+POW_DIFFICULTY\s*=\s*(\d+)/);
+        const saltMatch = html.match(/const\s+POW_SALT\s*=\s*['"]([^'"]+)['"]/);
+
+        let key = null;
+        if (CryptoJS && challengeMatch && difficultyMatch && saltMatch) {
+            const challenge = challengeMatch[1];
+            const difficulty = parseInt(difficultyMatch[1]);
+            const salt = saltMatch[1];
+            
+            console.log(`[Embed69] Resolviendo PoW: challenge=${challenge}, difficulty=${difficulty}, salt=${salt}`);
+            const prefix = '0'.repeat(difficulty);
+            let nonce = 0;
+            const start = Date.now();
+            
+            while (true) {
+                const hash = CryptoJS.SHA256(challenge + nonce).toString(CryptoJS.enc.Hex);
+                if (hash.startsWith(prefix)) {
+                    console.log(`[Embed69] PoW resuelto en ${Date.now() - start}ms. Nonce=${nonce}`);
+                    key = CryptoJS.SHA256(challenge + nonce + salt);
+                    break;
+                }
+                nonce++;
+            }
+        } else {
+            console.log(`[Embed69] Alerta: CryptoJS o parámetros de PoW no encontrados. Intentando fallback sin cifrado.`);
+        }
+
         // Filtrar Latino
         const lat = data.find(i => ["LAT", "LATINO"].includes(String(i.video_language).toUpperCase()));
-        if (!lat) return [];
+        if (!lat) {
+            console.log("[Embed69] No se encontró idioma Latino en los enlaces.");
+            return [];
+        }
 
         const results = [];
         const rawServers = lat.sortedEmbeds.filter(e => e.link && e.servername !== "download");
@@ -78,9 +124,31 @@ async function getStreams(tmdbId, mediaType, season, episode) {
         for (const embed of rawServers) {
             try {
                 const sName = embed.servername.toLowerCase();
-                const b64 = embed.link.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
-                const payload = JSON.parse(safeAtob(b64));
-                const embedUrl = payload.link;
+                let embedUrl = null;
+
+                if (key && CryptoJS) {
+                    // Descifrado AES-256-CBC
+                    const rawCipherParams = CryptoJS.enc.Base64.parse(embed.link);
+                    const iv = CryptoJS.lib.WordArray.create(rawCipherParams.words.slice(0, 4), 16);
+                    const ciphertext = CryptoJS.lib.WordArray.create(rawCipherParams.words.slice(4), rawCipherParams.sigBytes - 16);
+                    
+                    const decrypted = CryptoJS.AES.decrypt(
+                        { ciphertext: ciphertext },
+                        key,
+                        { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 }
+                    );
+                    embedUrl = decrypted.toString(CryptoJS.enc.Utf8);
+                } else {
+                    // Fallback antiguo si no se cuenta con la clave AES
+                    const b64 = embed.link.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+                    const payload = JSON.parse(safeAtob(b64));
+                    embedUrl = payload.link;
+                }
+
+                if (!embedUrl) {
+                    console.log(`[Embed69] No se pudo descifrar el enlace para el servidor ${sName}`);
+                    continue;
+                }
 
                 const item = {
                     name: sName.toUpperCase() + " (Sniffer)",
@@ -99,7 +167,7 @@ async function getStreams(tmdbId, mediaType, season, episode) {
                 // Pequeña pausa para no saturar el runtime
                 if (typeof __native_sleep === "function") await __native_sleep(50);
             } catch (e) {
-                console.log(`[Embed69] Error procesando servidor: ${e.message}`);
+                console.log(`[Embed69] Error procesando servidor ${embed.servername}: ${e.message}`);
             }
         }
 
@@ -111,3 +179,4 @@ async function getStreams(tmdbId, mediaType, season, episode) {
 }
 
 module.exports = { getStreams };
+
