@@ -52,6 +52,7 @@ async function getStreams(tmdbId, mediaType, season, episode) {
                         quality: "HD",
                         url: embedUrl,
                         behaviorHints: {
+                            notWebReady: true,
                             isEmbed: true
                         }
                     };
