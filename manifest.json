@@ -1,6 +1,6 @@
 {
     "name": "Embed - AdrianJael",
-    "version": "1.0.7",
+    "version": "1.0.8",
     "description": "Contenido exclusivo en Español Latino para NuvioMobile con acceso directo IMDB",
     "scrapers": [
         {
@@ -42,8 +42,8 @@
         {
             "id": "unlimplay",
             "name": "Unlimplay",
-            "description": "Nitro 1.0: Enlaces Directos & Sniffing Auto ⚡",
-            "version": "1.0.1",
+            "description": "Nitro 1.0.2: Enlaces Directos & Sniffing Auto ⚡",
+            "version": "1.0.2",
             "author": "AdrianJael",
             "supportedTypes": [
                 "movie",

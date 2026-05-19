@@ -70,15 +70,17 @@ async function getStreams(tmdbId, mediaType, season, episode) {
                 try {
                     if (!embedUrl || !embedUrl.startsWith("http")) continue;
 
-                    // Filtrar Netu/Waaw ya que no se pueden extraer con fiabilidad
+                    // Filtrar Netu/Waaw/PoseidonHD ya que no se pueden extraer con fiabilidad o redirigen
                     const lowServerName = sName.toLowerCase();
                     const lowUrl = embedUrl.toLowerCase();
                     if (
-                        lowServerName.includes("netu") || lowServerName.includes("waaw") || lowServerName.includes("hani") ||
-                        lowUrl.includes("waaw.to") || lowUrl.includes("netu.tv") || lowUrl.includes("netu.to") || 
-                        lowUrl.includes("hani.to") || lowUrl.includes("waaw.tv")
+                        lowServerName.includes("netu") || lowServerName.includes("waaw") || 
+                        lowServerName.includes("hani") || lowServerName.includes("poseidonhd") ||
+                        lowUrl.includes("waaw.to") || lowUrl.includes("netu.tv") || 
+                        lowUrl.includes("netu.to") || lowUrl.includes("hani.to") || 
+                        lowUrl.includes("waaw.tv") || lowUrl.includes("poseidonhd")
                     ) {
-                        console.log(`[Unlimplay] Ignorando servidor Netu/Waaw detectado: ${sName} (${embedUrl})`);
+                        console.log(`[Unlimplay] Ignorando servidor Netu/Waaw/PoseidonHD detectado: ${sName} (${embedUrl})`);
                         continue;
                     }
 
