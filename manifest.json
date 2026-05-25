@@ -1,6 +1,6 @@
 {
     "name": "Embed - AdrianJael",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "description": "Contenido exclusivo en Español Latino para NuvioMobile con acceso directo IMDB",
     "scrapers": [
         {
@@ -89,6 +89,23 @@
             "enabled": true,
             "embed": true,
             "logo": "https://allcalidad.re/favicon.ico",
+            "contentLanguage": [
+                "es"
+            ]
+        },
+        {
+            "id": "sololatino",
+            "name": "SoloLatino",
+            "description": "Servidores Rápidos: HLS Directo & Sniffing Auto ⚡",
+            "version": "1.1.2",
+            "author": "AdrianJael",
+            "supportedTypes": [
+                "movie",
+                "tv"
+            ],
+            "filename": "providers/sololatino.js",
+            "enabled": true,
+            "logo": "https://sololatino.net/favicon.ico",
             "contentLanguage": [
                 "es"
             ]
