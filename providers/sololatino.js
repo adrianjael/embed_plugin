@@ -748,6 +748,11 @@ async function getStreams(tmdbId, mediaType, season, episode, title) {
         };
         if (cookie) commonHeaders["Cookie"] = cookie;
 
+        // Inicialización requerida antes de a=1
+        const initActions = ["dlshort_scan", "dlshort_mf", "mark_vip", "dlurl"];
+        for (const action of initActions) {
+            await fetch(`${HOST}/s.php`, { method: "POST", headers: commonHeaders, body: `a=${action}&tok=${token}` }).catch(() => {});
+        }
         await fetch(`${HOST}/s.php`, { method: "POST", headers: commonHeaders, body: `a=click&tok=${token}` }).catch(() => {});
 
         const listRes = await fetch(`${HOST}/s.php`, { method: "POST", headers: commonHeaders, body: `a=1&tok=${token}` });
