@@ -1,6 +1,6 @@
 {
     "name": "Embed - AdrianJael",
-    "version": "1.2.0",
+    "version": "2.0.0",
     "description": "Contenido exclusivo en Español Latino para NuvioMobile con acceso directo IMDB",
     "scrapers": [
         {
@@ -96,8 +96,8 @@
         {
             "id": "sololatino",
             "name": "SoloLatino",
-            "description": "Servidores Rápidos: HLS Directo & Sniffing Auto ⚡",
-            "version": "1.1.2",
+            "description": "Resolución Server-side: HLS Directo + Embed sin WebView ⚡",
+            "version": "2.0.0",
             "author": "AdrianJael",
             "supportedTypes": [
                 "movie",
