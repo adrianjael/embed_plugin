@@ -665,7 +665,7 @@ function getStreams(tmdbId, mediaType, season, episode, title) {
       setSessionUA(currentUA);
       const HEADERS = {
         "User-Agent": currentUA,
-        "Cookie": "dle_user_id=32729; dle_password=894171c6a8dab18ee594d5c652009a35;",
+        "Cookie": "dle_user_id=53355; dle_password=ddbee1c0853d27efc137e5d35830aa0c;",
         "Referer": "https://cinemacity.cc/"
       };
       const tmdbUrl = `https://api.themoviedb.org/3/${mediaType === "tv" ? "tv" : "movie"}/${tmdbId}?api_key=${TMDB_API_KEY}`;
