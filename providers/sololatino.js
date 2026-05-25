@@ -478,33 +478,34 @@ async function detectQuality(url) {
     }
 }
 
+function makeHeaders(refererUrl, cookie) {
+    const h = {
+        "User-Agent": UA,
+        "Referer": refererUrl || HOST + "/",
+        "Origin": refererUrl ? new URL(refererUrl).origin : HOST
+    };
+    if (cookie) h["Cookie"] = cookie;
+    return h;
+}
+
 // Resolve any URL to a playable stream
-async function resolveEmbed(url) {
+async function resolveEmbed(url, refererUrl, cookie) {
     if (!url) return null;
     const low = url.toLowerCase();
 
     // p.php (Player+) - follow redirect chain
     if (low.includes("/p.php?")) {
         try {
-            const pResp = await fetch(url, { headers: { "User-Agent": UA }, redirect: "follow" });
+            const pResp = await fetch(url, { headers: makeHeaders(refererUrl, cookie), redirect: "follow" });
             const finalUrl = pResp.url;
             if (finalUrl && finalUrl !== url) {
-                if (finalUrl.includes("mediafire.com")) {
+                if (finalUrl.includes("mediafire.com") || finalUrl.includes(".mp4") || finalUrl.includes(".m3u8") || finalUrl.includes("/download")) {
                     return {
                         url: finalUrl,
                         quality: "HD",
                         verified: true,
                         serverName: "Player+",
-                        headers: { "User-Agent": UA, "Referer": "https://player.pelisserieshoy.com/" }
-                    };
-                }
-                if (finalUrl.includes(".mp4") || finalUrl.includes(".m3u8") || finalUrl.includes("/download")) {
-                    return {
-                        url: finalUrl,
-                        quality: "HD",
-                        verified: true,
-                        serverName: "Player+",
-                        headers: { "User-Agent": UA, "Referer": "https://player.pelisserieshoy.com/" }
+                        headers: makeHeaders(refererUrl, cookie)
                     };
                 }
             }
@@ -514,14 +515,13 @@ async function resolveEmbed(url) {
             quality: "SD",
             verified: false,
             serverName: "Player+",
-            headers: { "User-Agent": UA, "Referer": "https://player.pelisserieshoy.com/" },
+            headers: makeHeaders(refererUrl, cookie),
             notWebReady: true
         };
     }
 
-    // Check if URL already resolves to a playable media by following redirects
     try {
-        const probeResp = await fetch(url, { headers: { "User-Agent": UA, "Range": "bytes=0-0" }, redirect: "follow" });
+        const probeResp = await fetch(url, { headers: makeHeaders(refererUrl, cookie), redirect: "follow" });
         const finalUrl = probeResp.url;
         const contentType = (probeResp.headers.get("content-type") || "").toLowerCase();
 
@@ -533,13 +533,12 @@ async function resolveEmbed(url) {
                 verified: true,
                 isReal: true,
                 serverName: detectServerFromDomain(url),
-                headers: { "User-Agent": UA, "Referer": new URL(url).origin + "/" }
+                headers: makeHeaders(refererUrl, cookie)
             };
         }
 
-        // If redirected to HTML, try to extract m3u8 from the content
         if (finalUrl !== url) {
-            const textResp = await fetch(finalUrl, { headers: { "User-Agent": UA }, redirect: "follow" });
+            const textResp = await fetch(finalUrl, { headers: makeHeaders(refererUrl, cookie), redirect: "follow" });
             if (textResp.ok) {
                 const text = await textResp.text();
                 const m3u8Match = text.match(/https?:\/\/[^"'\s]+\.m3u8[^"'\s]*/i);
@@ -549,66 +548,34 @@ async function resolveEmbed(url) {
                         quality: "HD",
                         verified: true,
                         serverName: detectServerFromDomain(url),
-                        headers: { "User-Agent": UA, "Referer": finalUrl }
+                        headers: makeHeaders(refererUrl, cookie)
                     };
                 }
             }
         }
 
-        // Try known embed resolvers for HTML content
         const html = await probeResp.text();
         const isVoe = low.includes("voe") || low.includes("ericeastweight") || low.includes("cloudwindow") || low.includes("marissashare");
         const isVidHide = low.includes("vidhide") || low.includes("minochinos") || low.includes("masukestin") || low.includes("vadisov") || low.includes("mdfury") || low.includes("dintezuvio") || low.includes("vidhidepro") || low.includes("vidhidevip") || low.includes("vidoza");
         const isFilemoon = low.includes("filemoon") || low.includes("r66nv9ed") || low.includes("398fitus") || low.includes("moonalu") || low.includes("moonembed") || low.includes("bysedikamoum") || low.includes("fmoon");
         const isStreamWish = low.includes("streamwish") || low.includes("hlswish") || low.includes("hglink") || low.includes("embedwish") || low.includes("awish") || low.includes("wishfast") || low.includes("filelions") || low.includes("hanerix");
 
-        if (isVoe) {
-            const res = await resolveVoe(url);
-            if (res) return res;
-        }
-        if (isVidHide) {
-            const res = await resolveVidHide(url);
-            if (res) return res;
-        }
-        if (isFilemoon) {
-            const res = await resolveFilemoon(url);
-            if (res) return res;
-        }
-        if (isStreamWish) {
-            const res = await resolveStreamWish(url);
-            if (res) return res;
-        }
+        if (isVoe) { const res = await resolveVoe(url); if (res) return { ...res, headers: makeHeaders(refererUrl, cookie) }; }
+        if (isVidHide) { const res = await resolveVidHide(url); if (res) return { ...res, headers: makeHeaders(refererUrl, cookie) }; }
+        if (isFilemoon) { const res = await resolveFilemoon(url); if (res) return { ...res, headers: makeHeaders(refererUrl, cookie) }; }
+        if (isStreamWish) { const res = await resolveStreamWish(url); if (res) return { ...res, headers: makeHeaders(refererUrl, cookie) }; }
 
-        // Generic fallback: look for m3u8/mp4 in HTML
         const m3u8Match = html.match(/https?:\/\/[^"'\s]+\.m3u8[^"'\s]*/i);
         if (m3u8Match) {
-            return {
-                url: m3u8Match[0],
-                quality: "HD",
-                verified: true,
-                serverName: detectServerFromDomain(url),
-                headers: { "User-Agent": UA, "Referer": url }
-            };
+            return { url: m3u8Match[0], quality: "HD", verified: true, serverName: detectServerFromDomain(url), headers: makeHeaders(refererUrl, cookie) };
         }
         const mp4Match = html.match(/https?:\/\/[^"'\s"]+\.mp4[^"'\s]*/i);
         if (mp4Match) {
-            return {
-                url: mp4Match[0],
-                quality: "HD",
-                verified: true,
-                serverName: detectServerFromDomain(url),
-                headers: { "User-Agent": UA, "Referer": url }
-            };
+            return { url: mp4Match[0], quality: "HD", verified: true, serverName: detectServerFromDomain(url), headers: makeHeaders(refererUrl, cookie) };
         }
     } catch (e) {}
 
-    return {
-        url,
-        quality: "SD",
-        verified: false,
-        serverName: detectServerFromDomain(url),
-        headers: { "User-Agent": UA, "Referer": url.split("/").slice(0, 3).join("/") + "/" }
-    };
+    return { url, quality: "SD", verified: false, serverName: detectServerFromDomain(url), headers: makeHeaders(refererUrl, cookie) };
 }
 
 // Validate stream: check m3u8 quality
@@ -828,7 +795,7 @@ async function getStreams(tmdbId, mediaType, season, episode, title) {
                 // === RESOLVE EVERYTHING SERVER-SIDE ===
                 console.log(`[SoloLatino] Resolviendo ${srvName}: ${videoUrl.substring(0, 80)}`);
 
-                const resolved = await resolveEmbed(videoUrl);
+                const resolved = await resolveEmbed(videoUrl, oWeb, cookie);
                 if (resolved && resolved.url) {
                     const item = {
                         name: `SOLOLATINO - ${srvName.toUpperCase()}`,
@@ -839,9 +806,9 @@ async function getStreams(tmdbId, mediaType, season, episode, title) {
                         isReal: resolved.isReal || false,
                         provider: resolved.serverName || srvName,
                         language: "Latino",
-                        headers: resolved.headers || { "User-Agent": UA, "Referer": `${HOST}/` }
+                        headers: resolved.headers || makeHeaders(oWeb, cookie)
                     };
-
+                
                     console.log(`[SoloLatino] >> ${srvName} -> ${resolved.serverName || "OK"}: ${resolved.url.substring(0, 80)}`);
 
                     if (typeof __yield_result === "function") {
