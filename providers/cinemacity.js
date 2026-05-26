@@ -268,7 +268,7 @@ async function fallbackSearch(searchTitle, isMovie, season, episode) {
             return [];
         }
         const encodedTitle = encodeURIComponent(String(searchTitle).trim());
-        const searchUrl = `${MAIN_URL}/?do=search&subaction=search&search_start=0&full_search=0&story=${encodedTitle}`;
+        const searchUrl = `${BASE_URL}/?do=search&subaction=search&search_start=0&full_search=0&story=${encodedTitle}`;
         
         console.log(`[CinemaCity] Fallback search: ${searchUrl}`);
         const res = await safeFetch(searchUrl, { 
