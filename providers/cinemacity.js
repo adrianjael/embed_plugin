@@ -97,16 +97,20 @@ async function fetchSitemap() {
 
     if (!r || !r.ok) {
         console.log(`[CinemaCity] Fallo al descargar sitemap (posible Cloudflare). Code: ${r ? r.status : "Err"}`);
-        return [];
+        throw new Error("CLOUDFLARE");
     }
 
     const xmlText = await r.text();
+    if (xmlText.includes("cf-turnstile") || xmlText.includes("Just a moment")) {
+        throw new Error("CLOUDFLARE");
+    }
+
     const entries = parseSitemapEntries(xmlText);
     
     // Si la descarga falló o es muy pequeña (captcha de Cloudflare)
     if (entries.length < 10) {
         console.log(`[CinemaCity] Sitemap inválido o bloqueado por CF.`);
-        return [];
+        throw new Error("CLOUDFLARE");
     }
 
     sitemapCache = { entries, expiresAt: Date.now() + SITEMAP_TTL_MS };
@@ -179,7 +183,7 @@ async function getStreams(tmdbId, mediaType, season, episode, title) {
                     } else {
                         mediaInfo = data;
                     }
-
+                    
                     if (mediaInfo) {
                         if (mediaInfo.title) expectedTitles.push(mediaInfo.title);
                         if (mediaInfo.name) expectedTitles.push(mediaInfo.name);
@@ -205,8 +209,7 @@ async function getStreams(tmdbId, mediaType, season, episode, title) {
 
         const entries = await fetchSitemap();
         if (!entries || entries.length === 0) {
-            // Fallback a la búsqueda web si el sitemap falla o es bloqueado
-            console.log("[CinemaCity] Sitemap fallido. Realizando fallback a búsqueda por Web.");
+            console.log("[CinemaCity] Sitemap fallido o vacío. Realizando fallback a búsqueda por Web.");
             return await fallbackSearch(expectedTitles[0], isMovie, season, episode);
         }
 
@@ -242,6 +245,7 @@ async function getStreams(tmdbId, mediaType, season, episode, title) {
             quality: "HD",
             url: targetUrl,
             behaviorHints: {
+                requiresBrowserChallenge: true,
                 notWebReady: true,
                 isEmbed: true
             }
@@ -255,6 +259,23 @@ async function getStreams(tmdbId, mediaType, season, episode, title) {
         return results;
 
     } catch (e) {
+        if (e.message === "CLOUDFLARE") {
+            const item = {
+                name: "CinemaCity - Requiere Captcha",
+                language: "Multi",
+                quality: "Web",
+                url: "https://cinemacity.cc/",
+                behaviorHints: {
+                    requiresBrowserChallenge: true,
+                    notWebReady: true,
+                    isEmbed: false
+                }
+            };
+            if (typeof __yield_result === "function") {
+                __yield_result(JSON.stringify(item));
+            }
+            return [item];
+        }
         console.log(`[CinemaCity] Error Crítico: ${e.message}`);
         return [];
     }
@@ -279,59 +300,47 @@ async function fallbackSearch(searchTitle, isMovie, season, episode) {
         });
 
         if (!res || !res.ok) {
-            console.log("[CinemaCity] safeFetch falló en fallbackSearch. Devolviendo búsqueda web.");
-            return [{
-                name: `CinemaCity - Buscar Web`,
-                language: "Multi",
-                quality: "Web",
-                url: searchUrl,
-                behaviorHints: {
-                    notWebReady: false,
-                    isEmbed: false
-                }
-            }];
+            console.log("[CinemaCity] safeFetch falló en fallbackSearch. Solicitando reto Cloudflare.");
+            throw new Error("CLOUDFLARE");
         }
 
         const html = await res.text();
         if (html.includes("cf-turnstile") || html.includes("Just a moment")) {
-            console.log("[CinemaCity] Búsqueda bloqueada por CF. Devolviendo búsqueda web.");
-            return [{
-                name: `CinemaCity - Buscar Web`,
-                language: "Multi",
-                quality: "Web",
-                url: searchUrl,
-                behaviorHints: {
-                    notWebReady: false,
-                    isEmbed: false
-                }
-            }];
+            console.log("[CinemaCity] Búsqueda bloqueada por CF. Llevando a captcha on-demand.");
+            throw new Error("CLOUDFLARE");
         }
 
-        const $ = cheerio.load(html);
         let mediaUrl = null;
-        const targetKind = isMovie ? "/movies/" : "/tv-series/";
+        const targetKind = isMovie ? "movies" : "tv-series";
 
-        $("div.dar-short_item").each((i, el) => {
-            if (mediaUrl) return;
-            const anchor = $(el).find("a").first();
-            const href = anchor.attr("href") || "";
-            if (href.includes(targetKind)) {
-                const foundTitle = anchor.text().trim().toLowerCase();
+        let match;
+        const linkRegex = /<a\s+[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi;
+        while ((match = linkRegex.exec(html)) !== null) {
+            let href = match[1];
+            let anchorText = match[2].replace(/<[^>]*>/g, "").trim().toLowerCase();
+            
+            if (href.includes(`/${targetKind}/`)) {
+                if (href.startsWith("/")) {
+                    href = BASE_URL + href;
+                }
+                
                 const targetTitle = searchTitle.toLowerCase();
-                if (foundTitle.includes(targetTitle) || targetTitle.includes(foundTitle.split('(')[0].trim())) {
+                if (anchorText.includes(targetTitle) || targetTitle.includes(anchorText.split('(')[0].trim()) || targetTitle.includes(anchorText)) {
                     mediaUrl = href;
+                    break;
                 }
             }
-        });
+        }
 
         if (!mediaUrl) {
-            console.log("[CinemaCity] No se encontró resultado en la búsqueda. Devolviendo búsqueda web.");
+            console.log("[CinemaCity] No se encontró resultado en la búsqueda. Devolviendo búsqueda web con reto.");
             return [{
                 name: `CinemaCity - Buscar Web`,
                 language: "Multi",
                 quality: "Web",
                 url: searchUrl,
                 behaviorHints: {
+                    requiresBrowserChallenge: true,
                     notWebReady: false,
                     isEmbed: false
                 }
@@ -350,6 +359,7 @@ async function fallbackSearch(searchTitle, isMovie, season, episode) {
             quality: "HD",
             url: targetUrl,
             behaviorHints: {
+                requiresBrowserChallenge: true,
                 notWebReady: true,
                 isEmbed: true
             }
@@ -360,9 +370,25 @@ async function fallbackSearch(searchTitle, isMovie, season, episode) {
         }
         
         return [item];
-        return [item];
     } catch (e) {
-        console.log(`[CinemaCity] Error en fallbackSearch: ${e.message} - Stack: ${e.stack}`);
+        if (e.message === "CLOUDFLARE") {
+            const item = {
+                name: "CinemaCity - Requiere Captcha",
+                language: "Multi",
+                quality: "Web",
+                url: `${BASE_URL}/?do=search&subaction=search&search_start=0&full_search=0&story=${encodeURIComponent(searchTitle)}`,
+                behaviorHints: {
+                    requiresBrowserChallenge: true,
+                    notWebReady: true,
+                    isEmbed: false
+                }
+            };
+            if (typeof __yield_result === "function") {
+                __yield_result(JSON.stringify(item));
+            }
+            return [item];
+        }
+        console.log(`[CinemaCity] Error en fallbackSearch: ${e.message}`);
         return [];
     }
 }
