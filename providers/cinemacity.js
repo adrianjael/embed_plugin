@@ -372,21 +372,9 @@ async function fallbackSearch(searchTitle, isMovie, season, episode) {
         return [item];
     } catch (e) {
         if (e.message === "CLOUDFLARE") {
-            const item = {
-                name: "CinemaCity - Requiere Captcha",
-                language: "Multi",
-                quality: "Web",
-                url: `${BASE_URL}/?do=search&subaction=search&search_start=0&full_search=0&story=${encodeURIComponent(searchTitle)}`,
-                behaviorHints: {
-                    requiresBrowserChallenge: true,
-                    notWebReady: true,
-                    isEmbed: true
-                }
-            };
-            if (typeof __yield_result === "function") {
-                __yield_result(JSON.stringify(item));
-            }
-            return [item];
+            // No devolvemos nada, obligamos a que el sistema no lo reconozca como un stream válido para sniffing
+            console.log("[CinemaCity] Bloqueando stream por Cloudflare para evitar sniffing automático.");
+            return [];
         }
         console.log(`[CinemaCity] Error en fallbackSearch: ${e.message}`);
         return [];
