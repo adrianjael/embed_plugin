@@ -263,8 +263,11 @@ async function getStreams(tmdbId, mediaType, season, episode, title) {
 // Fallback search en caso de que Sitemap sea inaccesible
 async function fallbackSearch(searchTitle, isMovie, season, episode) {
     try {
-        const cheerio = require("cheerio");
-        const encodedTitle = encodeURIComponent(searchTitle.trim());
+        if (!searchTitle) {
+            console.log("[CinemaCity] searchTitle is undefined in fallbackSearch");
+            return [];
+        }
+        const encodedTitle = encodeURIComponent(String(searchTitle).trim());
         const searchUrl = `${MAIN_URL}/?do=search&subaction=search&search_start=0&full_search=0&story=${encodedTitle}`;
         
         console.log(`[CinemaCity] Fallback search: ${searchUrl}`);
@@ -324,7 +327,9 @@ async function fallbackSearch(searchTitle, isMovie, season, episode) {
         }
         
         return [item];
+        return [item];
     } catch (e) {
+        console.log(`[CinemaCity] Error en fallbackSearch: ${e.message} - Stack: ${e.stack}`);
         return [];
     }
 }
