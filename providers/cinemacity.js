@@ -380,7 +380,7 @@ async function fallbackSearch(searchTitle, isMovie, season, episode) {
                 behaviorHints: {
                     requiresBrowserChallenge: true,
                     notWebReady: true,
-                    isEmbed: false
+                    isEmbed: true
                 }
             };
             if (typeof __yield_result === "function") {

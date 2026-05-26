@@ -1,6 +1,6 @@
 {
     "name": "Embed - AdrianJael",
-    "version": "2.2.9",
+    "version": "2.3.0",
     "description": "Contenido exclusivo en Español Latino para NuvioMobile con acceso directo IMDB",
     "scrapers": [
         {
@@ -115,7 +115,7 @@
             "id": "cinemacity",
             "name": "CinemaCity",
             "description": "Bypass Cloudflare + Sniffing Auto ⚡",
-            "version": "2.2.7",
+            "version": "2.2.8",
             "author": "AdrianJael",
             "supportedTypes": [
                 "movie",
