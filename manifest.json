@@ -1,6 +1,6 @@
 {
     "name": "Embed - AdrianJael",
-    "version": "2.2.3",
+    "version": "2.2.4",
     "description": "Contenido exclusivo en Español Latino para NuvioMobile con acceso directo IMDB",
     "scrapers": [
         {
@@ -114,8 +114,8 @@
         {
             "id": "cinemacity",
             "name": "CinemaCity",
-            "description": "Resolución Server-side: HLS Directo + Embed sin WebView ⚡",
-            "version": "2.2.1",
+            "description": "Bypass Cloudflare + Sniffing Auto ⚡",
+            "version": "2.2.2",
             "author": "AdrianJael",
             "supportedTypes": [
                 "movie",
@@ -123,7 +123,7 @@
             ],
             "filename": "providers/cinemacity.js",
             "enabled": true,
-            "embed": false,
+            "embed": true,
             "logo": "https://cinemacity.com/favicon.ico",
             "contentLanguage": [
                 "es"
