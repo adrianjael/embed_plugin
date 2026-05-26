@@ -12,10 +12,7 @@ const SITEMAP_URL = `${BASE_URL}/news_pages.xml`;
 const TMDB_API_KEY = "1865f43a0549ca50d341dd9ab8b29f49";
 
 // Decode the Base64 session cookie
-const SESSION_COOKIE = Buffer.from(
-    "ZGxlX3VzZXJfaWQ9MzI3Mjk7IGRsZV9wYXNzd29yZD04OTQxNzFjNmE4ZGFiMThlZTU5NGQ1YzY1MjAwOWEzNTs=",
-    "base64"
-).toString("utf-8");
+const SESSION_COOKIE = "dle_user_id=32729; dle_password=894171c6a8dab18ee594d5c652009a35;";
 
 // Caché en memoria para el sitemap
 let sitemapCache = null;
