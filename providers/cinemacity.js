@@ -278,12 +278,33 @@ async function fallbackSearch(searchTitle, isMovie, season, episode) {
             } 
         });
 
-        if (!res || !res.ok) return [];
+        if (!res || !res.ok) {
+            console.log("[CinemaCity] safeFetch falló en fallbackSearch. Devolviendo búsqueda web.");
+            return [{
+                name: `CinemaCity - Buscar Web`,
+                language: "Multi",
+                quality: "Web",
+                url: searchUrl,
+                behaviorHints: {
+                    notWebReady: false,
+                    isEmbed: false
+                }
+            }];
+        }
 
         const html = await res.text();
         if (html.includes("cf-turnstile") || html.includes("Just a moment")) {
-            console.log("[CinemaCity] Búsqueda bloqueada por CF.");
-            return [];
+            console.log("[CinemaCity] Búsqueda bloqueada por CF. Devolviendo búsqueda web.");
+            return [{
+                name: `CinemaCity - Buscar Web`,
+                language: "Multi",
+                quality: "Web",
+                url: searchUrl,
+                behaviorHints: {
+                    notWebReady: false,
+                    isEmbed: false
+                }
+            }];
         }
 
         const $ = cheerio.load(html);
@@ -303,7 +324,19 @@ async function fallbackSearch(searchTitle, isMovie, season, episode) {
             }
         });
 
-        if (!mediaUrl) return [];
+        if (!mediaUrl) {
+            console.log("[CinemaCity] No se encontró resultado en la búsqueda. Devolviendo búsqueda web.");
+            return [{
+                name: `CinemaCity - Buscar Web`,
+                language: "Multi",
+                quality: "Web",
+                url: searchUrl,
+                behaviorHints: {
+                    notWebReady: false,
+                    isEmbed: false
+                }
+            }];
+        }
 
         let targetUrl = mediaUrl;
         if (!isMovie && season && episode) {
