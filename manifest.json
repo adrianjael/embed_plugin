@@ -1,6 +1,6 @@
 {
     "name": "Embed - AdrianJael",
-    "version": "2.3.1",
+    "version": "2.3.11",
     "description": "Contenido exclusivo en Español Latino para NuvioMobile con acceso directo IMDB",
     "scrapers": [
         {
@@ -89,42 +89,6 @@
             "enabled": true,
             "embed": true,
             "logo": "https://allcalidad.re/favicon.ico",
-            "contentLanguage": [
-                "es"
-            ]
-        },
-        {
-            "id": "sololatino",
-            "name": "SoloLatino",
-            "description": "Resolución Server-side: HLS Directo + Embed sin WebView ⚡",
-            "version": "2.2.1",
-            "author": "AdrianJael",
-            "supportedTypes": [
-                "movie",
-                "tv"
-            ],
-            "filename": "providers/sololatino.js",
-            "enabled": true,
-            "embed": false,
-            "logo": "https://sololatino.net/favicon.ico",
-            "contentLanguage": [
-                "es"
-            ]
-        },
-        {
-            "id": "cinemacity",
-            "name": "CinemaCity",
-            "description": "Bypass Cloudflare + Sniffing Auto ⚡",
-            "version": "2.2.9",
-            "author": "AdrianJael",
-            "supportedTypes": [
-                "movie",
-                "tv"
-            ],
-            "filename": "providers/cinemacity.js",
-            "enabled": true,
-            "embed": true,
-            "logo": "https://cinemacity.com/favicon.ico",
             "contentLanguage": [
                 "es"
             ]
