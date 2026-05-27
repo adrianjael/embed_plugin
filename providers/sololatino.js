@@ -59,14 +59,14 @@ function W(t, e, r, p) {
             if (!sn) sn = s.src || "Server";
             if (s.u && s.sig) {
               let i = `${c}/p.php?url=${encodeURIComponent(s.u)}&sig=${encodeURIComponent(s.sig)}`;
-              return { name: sn, title: `1080p \xB7 ${f}`, url: i, quality: "1080p", headers: { Referer: c } };
+              return { name: `Sololatino - ${sn}`, title: `1080p \xB7 ${f}`, url: i, quality: "1080p", headers: { Referer: c } };
             }
             if (s.u && !s.sig) {
               let i = s.u.startsWith("http") ? s.u : `${c}${s.u}`;
-              return { name: sn, title: `1080p \xB7 ${f}`, url: i, quality: "1080p", headers: { Referer: c } };
+              return { name: `Sololatino - ${sn}`, title: `1080p \xB7 ${f}`, url: i, quality: "1080p", headers: { Referer: c } };
             }
             if (s.type === "mp4" && s.u) {
-              return { name: sn, title: `1080p \xB7 ${f}`, url: s.u, quality: "1080p", headers: { Referer: c } };
+              return { name: `Sololatino - ${sn}`, title: `1080p \xB7 ${f}`, url: s.u, quality: "1080p", headers: { Referer: c } };
             }
           } catch (s) {
             console.log(`[PelisSeriesHoy] Error en resolver ${o}: ${s.message}`);

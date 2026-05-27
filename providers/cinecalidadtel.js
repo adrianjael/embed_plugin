@@ -61,6 +61,20 @@ function decodeBase64(str) {
     }
 }
 
+function extractDomain(url) {
+    try {
+        const u = new URL(url);
+        return u.origin + "/";
+    } catch (e) {
+        const match = url.match(/^(https?:\/\/[^\/]+)/);
+        return match ? match[1] + "/" : url;
+    }
+}
+
+function cleanServerName(raw) {
+    return raw.replace(/[^a-zA-Z0-9 ]/g, "").trim() || "Server";
+}
+
 async function searchCinecalidad(query) {
     const url = `${SITE_URL}/wp-json/wp/v2/movies?search=${encodeURIComponent(query)}&per_page=10`;
     try {
@@ -90,12 +104,15 @@ async function extractEmbedsFromHTML(url) {
             const encoded = match[1];
             const decoded = decodeBase64(encoded);
             let serverName = match[2] ? match[2].trim() : "Server";
+            const cleanName = cleanServerName(serverName);
+            const domain = decoded ? extractDomain(decoded) : SITE_URL;
 
             if (decoded && decoded.startsWith("http")) {
                 const item = {
-                    name: "CinecalidadTel",
+                    name: `CinecalidadTel - ${cleanName}`,
                     title: serverName.charAt(0).toUpperCase() + serverName.slice(1),
                     url: decoded,
+                    headers: { Referer: domain },
                     behaviorHints: {
                         notWebReady: true,
                         isEmbed: true
@@ -282,7 +299,6 @@ async function getStreams(tmdbId, mediaType, season, episode) {
             if (!data || data.length === 0) continue;
 
             for (const post of data) {
-                const postYear = "";
                 const match = post.class_list && post.class_list.find(c => c.startsWith("annee-"));
                 const postYearStr = match ? match.replace("annee-", "") : "";
                 const titleMatch = isMatch(post.title.rendered, title, post.slug, postYearStr, year);
