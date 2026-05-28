@@ -1,0 +1,44 @@
+{
+    "name": "Resolvedores Nuvio",
+    "version": "1.0.0",
+    "description": "Resolvedores universales para servidores de video",
+    "author": "AdrianJael",
+    "resolvers": [
+        {
+            "id": "goodstream",
+            "name": "GoodStream",
+            "description": "Resuelve enlaces de goodstream.one",
+            "version": "1.0.0",
+            "domains": ["goodstream.one", "www.goodstream.one"],
+            "filename": "resolvers/goodstream.js",
+            "enabled": true
+        },
+        {
+            "id": "voe",
+            "name": "Voe",
+            "description": "Resuelve enlaces de voe.sx y mirrors",
+            "version": "1.0.0",
+            "domains": ["voe.sx", "ericeastweight.com", "laurensswie.com", "mochinutw.com", "allowvoe.com", "unblock-voe.com"],
+            "filename": "resolvers/voe.js",
+            "enabled": true
+        },
+        {
+            "id": "filemoon",
+            "name": "Filemoon",
+            "description": "Resuelve enlaces de filemoon.sx y mirrors",
+            "version": "1.0.0",
+            "domains": ["filemoon.sx", "bysedikamoum.com", "byredim.com", "bypassed.com"],
+            "filename": "resolvers/filemoon.js",
+            "enabled": true
+        },
+        {
+            "id": "vimeos",
+            "name": "Vimeos",
+            "description": "Resuelve enlaces de vimeos.net",
+            "version": "1.0.0",
+            "domains": ["vimeos.net", "www.vimeos.net"],
+            "filename": "resolvers/vimeos.js",
+            "enabled": true
+        }
+    ]
+}
